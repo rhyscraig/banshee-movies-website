@@ -1,0 +1,5 @@
+{
+    "prd": {
+        "role_to_assume": "arn:aws:iam::395101865577:role/GitHubAction-AssumeRoleWithAction"
+    }
+}
