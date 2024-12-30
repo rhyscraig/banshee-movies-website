@@ -14,7 +14,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -23,7 +25,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::767828739298:role/GitHubAction-AssumeRoleWithAction
-          aws-region: "eu-west-2"
+          aws-region: eu-west-2
 
       - name: Upload to S3
         run: |
