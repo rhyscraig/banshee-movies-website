@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Banshee | Decent Movies Finder</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+  <!-- DataTables JS -->
+  <script type="text/javascript" src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css"/>
+
+  <!-- DataTables Fixed header -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedheader/3.3.2/css/fixedHeader.dataTables.min.css"/>
+  <script type="text/javascript" src="https://cdn.datatables.net/fixedheader/3.3.2/js/dataTables.fixedHeader.min.js"></script>
+
+  <style>
+  </style>
+</head>
+<body>
+
+  <nav class="navbar bg-dark navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="https://banshee.craighoad.com">Banshee</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+					<input type="text" class="form-control date-own" placeholder="Select Year">
+            <!-- Genres will be loaded here -->
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+	<main>
+  	<div class="container content">
+
+			<h1 class="visually-hidden">Banshee - Only Decent Movies</h1>
+
+			<div id="introsection" class="px-4 py-5 my-5 text-center">
+				<img class="d-block mx-auto mb-4" src="/Icon_banshee.png" alt="" width="172" height="157">
+				<h1 class="display-5 fw-bold">Banshee</h1>
+				<div class="col-lg-6 mx-auto">
+					<p class="lead mb-4">Banshee is a tool for finding good movies.  Select the genre and year from the menu to view all decent movies released that year.</p>
+					<div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+					</div>
+				</div>
+			</div>
+
+			<!-- Poster Modal -->
+      <div class="modal fade" id="posterModal" tabindex="-1" aria-labelledby="posterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="trailerModalLabel">Movie Poster</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <img id="posterImage" src="" alt="Movie Poster" class="img-fluid" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overview Modal -->
+      <div class="modal fade" id="overviewModal" tabindex="-1" aria-labelledby="overviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="overviewModalLabel">Overview</h5> <!-- Title goes here -->
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <img id="backdropImage" src="" alt="Backdrop" class="backdrop-image mb-2" style="width: 100%;">
+              <div class="overlay">
+                <span class="h5 p-2">About</span>
+                <p class="overview-text p-2 text-justify"><!-- Movie description goes here --></p> 
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>      
+    
+			<!-- Trailer Modal -->
+			<div class="modal fade" id="trailerModal" tabindex="-1" aria-labelledby="trailerModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered modal-lg"> <!-- Adjusted size for videos -->
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="trailerModalLabel">Movie Trailer</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<!-- Trailer video will be embedded here -->
+							<div class="ratio ratio-16x9"> <!-- Bootstrap responsive video class -->
+								<iframe id="trailerFrame" src="" title="YouTube video" allowfullscreen></iframe>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+    	<div id="genreYearHeader" class="mb-4 mt-4"></div> <!-- New div for the header -->
+
+			<!-- Table for displaying JSON data -->
+			<div class="row mt-4">
+				<div class="col">
+					<div class="table-responsive">
+						<table class="table table-striped table-bordered display" style="width:100%" id="movieTable">
+							<thead>
+								<!-- Table headers will be dynamically generated -->
+							</thead>
+							<tbody>
+								<!-- Table body will be dynamically populated -->
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- Back to top button -->
+			<button class="btn btn-primary back-to-top" id="backToTop">Back to Top</button>
+      <script>
+        // Sample genres
+        const genres = [
+            { name: 'Action', dataUrl: 'https://banshee.craighoad.com/action' },
+            { name: 'Adventure', dataUrl: 'https://banshee.craighoad.com/adventure' },
+            { name: 'Comedy', dataUrl: 'https://banshee.craighoad.com/comedy' },
+            { name: 'Crime', dataUrl: 'https://banshee.craighoad.com/crime' },
+            { name: 'Documentary', dataUrl: 'https://banshee.craighoad.com/documentary' },
+            { name: 'Drama', dataUrl: 'https://banshee.craighoad.com/drama' },
+            { name: 'Fantasy', dataUrl: 'https://banshee.craighoad.com/fantasy' },
+            { name: 'Horror', dataUrl: 'https://banshee.craighoad.com/horror' },
+            { name: 'Mystery', dataUrl: 'https://banshee.craighoad.com/mystery' },
+            { name: 'Science_Fiction', dataUrl: 'https://banshee.craighoad.com/science_fiction' },
+            { name: 'Thriller', dataUrl: 'https://banshee.craighoad.com/thriller' },
+            { name: 'War', dataUrl: 'https://banshee.craighoad.com/war' },
+            { name: 'Western', dataUrl: 'https://banshee.craighoad.com/western' }
+        ];
+
+        const currentYear = new Date().getFullYear();
+        let movieTable; // Declare movieTable variable in the global scope
+
+        // Generate the genre dropdowns
+        genres.forEach(genre => {
+            let dropdownHtml = `
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown-${genre.name}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      ${genre.name}
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown-${genre.name}">
+            `;
+
+            for (let year = currentYear; year >= currentYear - 120; year--) {
+                const filename = `${genre.name.toLowerCase()}_movies_${year}.json`;
+                dropdownHtml += `
+                    <a class="dropdown-item" href="${genre.dataUrl}/${year}/${filename}">${year}</a>
+                `;
+            }
+
+            dropdownHtml += `</ul></li>`;
+            $('.navbar-nav').append(dropdownHtml);
+        });
+
+        // Function to display movie details in a table
+        function displayMovieDetails(data) {
+            const tableHeaders = $('#movieTable thead');
+            const tableBody = $('#movieTable tbody');
+
+            // Clear existing table headers and body
+            tableHeaders.empty();
+            tableBody.empty();
+
+            // Dynamically generate table headers
+            const headers = [
+                "Banshee Score",
+                "Title",
+                "Overview",
+                "Trailer",
+                "Backdrop Path",
+                "Poster Path",
+                "Release Date",
+                "Popularity",
+                "Vote Score"
+            ];
+            const headerRow = $('<tr>');
+            headers.forEach(header => {
+                headerRow.append(`<th>${header}</th>`);
+            });
+            tableHeaders.append(headerRow);
+
+            // Populate table body with JSON data
+            data.forEach(movie => {
+                const row = $('<tr>');
+                headers.forEach(header => {
+                    if (header === 'Poster Path') {
+                        row.append(`
+                          <td>
+                              <img src="https://image.tmdb.org/t/p/original/${movie[header]}"
+                                    class="img-fluid poster-image"
+                                    style="max-width: 100px;"
+                                    data-poster="https://image.tmdb.org/t/p/original/${movie[header]}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#posterModal">
+                          </td>
+                        `);
+                    } else if (header === 'Title') {
+                        // Create a TMDB link for the title
+                        const movieTitleSlug = movie[header].replace(/\s+/g, '-').toLowerCase();
+                        const tmdbUrl = `https://www.themoviedb.org/movie/${movie['Id']}-${movieTitleSlug}`;
+                        
+                        // Combine the title and the poster image in the same cell
+                        row.append(`
+                          <td>
+                              <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                                  <img src="https://image.tmdb.org/t/p/original/${movie['Poster Path']}" 
+                                      class="img-fluid poster-image" 
+                                      style="max-width: 100px; margin-bottom: 10px;" 
+                                      data-poster="https://image.tmdb.org/t/p/original/${movie['Poster Path']}" 
+                                      data-bs-toggle="modal" 
+                                      data-bs-target="#posterModal">
+                                  <a href="${tmdbUrl}" class="h5" target="_blank">${movie[header]}</a>
+                              </div>
+                          </td>
+                        `);
+                    } else if (header === 'Backdrop Path') {
+                        row.append(`
+                          <td>
+                            <img src="https://image.tmdb.org/t/p/original/${movie[header]}"
+                              class="img-fluid backdrop-image"
+                              style="max-width: 100px;">
+                          </td>
+                        `);
+                    }  else if(header==='Overview'){
+    const originalLanguage = movie['Original Language'];
+    const releaseDate = movie['Release Date'];
+    const genres = movie.Genres.split(','); // Assuming Genres is a comma-separated string
+    row.append(`<td>
+        <a href="#" class="about-link btn btn-primary"
+           data-bs-toggle="modal"
+           data-bs-target="#overviewModal"
+           data-title="${movie['Title']}"
+           data-description="${movie['Overview']}"
+           data-backdrop="https://image.tmdb.org/t/p/original/${movie['Backdrop Path']}"
+           data-language="${originalLanguage}"
+           data-release="${releaseDate}"
+           data-genre="${genres.join(',')}">  <!-- Join the array for passing -->
+            Summary
+        </a>
+    </td>`);
+
+                    } else if (header === 'Trailer') {
+                        row.append(`<td>
+                                        <a href="${movie[header]}" class="trailer-link btn btn-primary" data-trailer="${movie[header]}">Trailer</a>
+                                    </td>`);
+                    } else if (header === 'Release Date') {
+                      // Add a hidden input to hold the release date for later access
+                      row.append(`
+                          <td>
+                              <span class="badge rounded-pill bg-light text-dark">${movie[header]}</span>
+                              <input type="hidden" class="release-date" value="${movie[header]}"/>
+                          </td>
+                      `);
+                    } else if (header === 'Popularity') {
+                        row.append(`<td><span class="badge rounded-pill bg-dark border border-2">${movie[header]}</span></td>`);
+                    } else if (header === 'Vote Score') {
+                        row.append(`<td><span class="badge rounded-pill bg-dark border border-2">${movie[header]}</span></td>`);
+                    } else if (header === 'Banshee Score') {
+                        row.append(`<td><span class="badge rounded-pill bg-primary">${movie[header]}</span></td>`);
+                    } else {
+                        row.append(`<td>${movie[header]}</td>`);
+                    }
+                });
+                tableBody.append(row);
+            });
+
+            // Destroy existing DataTable instance if it exists
+            if ($.fn.dataTable.isDataTable('#movieTable')) {
+                movieTable.destroy(); // Destroy the existing instance
+            }
+
+            // Initialize DataTables with sorting enabled and default sorting by Banshee Score descending
+            movieTable = $('#movieTable').DataTable({
+                "order": [[ headers.indexOf("Banshee Score"), "desc" ]], // Default sorting by Banshee Score in descending order
+                "fixedHeader": true, // Enable fixed header
+                "responsive": true,
+                "destroy": true,
+                "pageLength": 10,
+                "lengthMenu": [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, 'All']
+                ],
+                "language": {
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    }
+                },
+                "layout": {
+                  "top2Start": 'pageLength',
+                  "top2End": 'search',
+                  "topStart": 'info',
+                  "topEnd": 'paging',
+                  "bottomStart": 'pageLength',
+                  "bottomEnd": 'search',
+                  "bottom2Start": 'info',
+                  "bottom2End": 'paging'
+                },
+                "columnDefs": [
+                  { width: '40px', targets: [ 0 ] },
+                  { width: '380px', targets: [ 1 ]},
+                  { width: '200px', targets: [ 2, 3 ]},
+                  {
+                    "className": "dt-left", 
+                    "targets": "_all"
+                  },
+                  {
+                    "target": 4,
+                    "visible": false
+                  },
+                  {
+                    "target": 5,
+                    "visible": false
+                  },
+                  {
+                    "target": 6,
+                    "visible": false
+                  }
+                ],
+            });
+        }
+
+        // Function to update the genre and year header
+        function updateGenreYearHeader(genre, year) {
+            $('#genreYearHeader').html(`<h2>${genre} Movies ${year}</h2>`);
+        }
+
+        // Function to fetch JSON data from URL and display it in the table
+        function fetchJsonData(url, genre, year) {
+            console.log("Fetching data from:", url); // Log the URL being fetched
+            $.getJSON(url)
+            .done(function(data) {
+                console.log("Data fetched successfully:", data); // Log the fetched data
+                
+                // Clear existing table before updating
+                if ($.fn.dataTable.isDataTable('#movieTable')) {
+                    $('#movieTable').DataTable().clear().destroy(); // Clear and destroy existing instance
+                }
+                
+                displayMovieDetails(data); // Display new data in the table
+                updateGenreYearHeader(genre, year); // Update header each time new data is fetched
+                $('#introsection').hide(); // Hide the intro section if visible
+            })
+            .fail(function(jqxhr, textStatus, error) {
+                console.error("Fetch error:", textStatus, error);
+                alert("Error fetching movie data. Please try again later.");
+            });
+        }
+
+        $(document).ready(function() {
+
+
+            // Event handler to open poster in modal
+            $(document).on('click', '.poster-image', function() {
+                const posterSrc = $(this).data('poster'); // Get the poster URL from the data attribute
+                $('#posterImage').attr('src', posterSrc); // Set the src of the modal image
+                $('#posterModal').modal('show'); // Show the modal
+            });
+
+            // Event handler to open trailer in modal
+            $(document).on('click', '.trailer-link', function(event) {
+                event.preventDefault(); // Prevent default link action
+                const trailerUrl = $(this).data('trailer'); // Get trailer URL
+
+                // Extract video ID from the trailer URL
+                const videoId = trailerUrl.split('v=')[1]?.split('&')[0]; // Get video ID
+                const embedUrl = `https://www.youtube.com/embed/${videoId}`; // Format embed URL
+
+                // Update iframe in the modal with the trailer URL
+                $('#trailerFrame').attr('src', embedUrl);
+
+                // Show the trailer modal
+                $('#trailerModal').modal('show');
+            });
+
+            // When modal is closed, stop the trailer from playing
+            $('#trailerModal').on('hidden.bs.modal', function () {
+                $('#trailerFrame').attr('src', ''); // Clear the iframe src to stop video
+            });
+
+            // Event listener for dropdown item clicks to fetch movie data
+            $('.navbar-nav').on('click', '.dropdown-item', function(event) {
+                event.preventDefault(); // Prevent the default action of the link
+                const url = $(this).attr('href'); // Get the URL from the clicked item
+                const genre = $(this).closest('.dropdown').find('.dropdown-toggle').text().trim(); // Get genre
+                const year = $(this).text().trim(); // Get year
+                fetchJsonData(url, genre, year); // Fetch and display the data
+
+                // Collapse the navbar on small viewports
+                $('.navbar-collapse').collapse('hide'); // This will hide the navbar
+
+                // Update the genre and year header each time the dropdown is clicked
+                updateGenreYearHeader(genre, year);
+            });
+
+            // Event handler to update the modal with the overview when 'about' is clicked
+            $(document).on('click','.about-link',function(event){
+    event.preventDefault();
+    const title=$(this).data('title');
+    const description=$(this).data('description');
+    const backdropPath=$(this).data('backdrop');
+    const language=$(this).data('language');
+    const release=$(this).data('release');
+    const genresArray=$(this).data('genre').split(',');  // Split the string into an array
+
+    $('#overviewModal .modal-title').text(title);
+    $('#overviewModal .overview-text').html(`  
+             <p>${description}</p>
+            <span class="border border-secondary-subtle rounded p-1">
+                <small><strong>Original Language: </strong><span class="text-info">  ${language} </span></small>
+            </span>
+
+            <span class="border border-secondary-subtle rounded p-1 mx-2">
+                <small><strong>Release Date: </strong><span class="text-info"> ${release} </span></small>
+            </span>
+
+        <div class="mt-3">
+            <span class="border border-secondary-subtle rounded p-1">
+                <small><strong>Genres: </strong><span class="text-info"> ${genresArray.map(genre => genre.trim()).join(', ')} </span></small>
+            </span>
+        </div>
+    `);
+    $('#backdropImage').attr('src',backdropPath);
+    $('#overviewModal').modal('show');
+});
+
+
+            // Back to top button functionality
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 200) {
+                    $('#backToTop').fadeIn();
+                } else {
+                    $('#backToTop').fadeOut();
+                }
+            });
+
+            $('#backToTop').click(function() {
+                $('html, body').animate({ scrollTop: 0 }, 200);
+                return false;
+            });
+        });
+    </script>
+
+
+  	</div>
+	</main>
+
+	<footer class="footer pt-2">
+    <div class="container text-center">
+      <hr class="hr hr-blurry" />
+      <span>&copy; 2024 Banshee | Powered by
+        <a href="https://www.themoviedb.org/?language=en-GB" target="_blank" rel="noopener noreferrer" aria-label="Visit The Internet Movie Database (TMDB) in English">TMDB</a>.
+      </span>
+    </div>
+	</footer>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+name: Validate HTML, CSS, JavaScript, and Terraform
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  terraform_validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: '1.3.6'  # or your preferred version
+
+      - name: Terraform Validate
+        run: terraform validate
+
+  html_css_js_validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install HTMLHint
+        run: |
+          npm install -g htmlhint
+
+      - name: Validate HTML
+        run: |
+          htmlhint **/*.html
+
+      - name: Install ESLint
+        run: |
+          npm install -g eslint
+
+      - name: Validate JavaScript
+        run: |
+          eslint **/*.js
+
+      - name: Install Bootstrap's HTML Validator (Optional)
+        run: |
+          npm install -g bootstrap-validator
+
+      - name: Validate Bootstrap HTML (Optional)
+        run: |
+          bootstrap-validator **/*.html
