@@ -30,3 +30,8 @@ jobs:
       - name: Upload to S3
         run: |
           aws s3 cp . s3://movies.craighoad.com/ --recursive
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp ./movies/horror/2024/horror_movies_2024.json s3://movies.craighoad.com/movies/horror/2024/horror_movies_2024.json
+          aws s3 cp ./movies/thriller/2024/thriller_movies_2024.json s3://movies.craighoad.com/movies/thriller/2024/thriller_movies_2024.json
