@@ -10,6 +10,13 @@ The Banshee Movies Website is a dynamic platform that showcases a curated collec
 ## Deployment Overview
 The Banshee Movies Website is deployed to Amazon Web Services (AWS) using a Continuous Integration and Continuous Deployment (CI/CD) pipeline powered by GitHub Actions. This setup ensures that the website is automatically updated with the latest changes from the GitHub repository.
 
+### Refactored Code [Dec 24]
+Banshee has been split into movies and tv shows with their own repos in GitHub. 
+Banshee movies - banshee-movies-website
+Banshee tv - banshee-tv-website
+This is so GitHub actions can update the HTML files inside each bucket.
+New Banshee buckets are managed in aws-prod-account
+
 ## Deployment Process
 Code Commit: Developers push updates to the master branch of the GitHub repository.
 
